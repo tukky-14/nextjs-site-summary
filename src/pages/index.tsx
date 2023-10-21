@@ -25,14 +25,29 @@ export default function Home() {
             // HTMLを解析してbodyタグの中身を取得
             const parser = new DOMParser();
             const htmlDocument = parser.parseFromString(data, 'text/html');
+            console.log('htmlDocument:', htmlDocument);
+
+            // すべての<script>タグを削除
+            const scriptTags = htmlDocument.querySelectorAll('script');
+            scriptTags.forEach((script) => {
+                script.parentNode?.removeChild(script);
+            });
+
+            // すべての<sytle>タグを削除
+            const sytleTags = htmlDocument.querySelectorAll('sytle');
+            sytleTags.forEach((style) => {
+                style.parentNode?.removeChild(style);
+            });
+
+            // タグを除去したテキスト情報を取得
             let bodyContents = htmlDocument.body.textContent?.trim();
+            console.log('bodyContents:', bodyContents);
 
             // トークンの上限を超える場合、テキストを切り詰める
             if (bodyContents?.length || 0 > MAX_CHARS) {
                 bodyContents = bodyContents?.substring(0, MAX_CHARS);
             }
 
-            console.log('htmlContents:', bodyContents);
             await fetchSummary(bodyContents);
         } catch (error) {
             console.error('Error fetching data:', error);
