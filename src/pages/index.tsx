@@ -15,11 +15,10 @@ export default function Home() {
 
     const fetchData = async () => {
         try {
-            // const response = await axios.get(url);
-            // const response = await axios.get(`http://localhost:3001/proxy?url=${url}`);
-            // console.log('response:', response);
-            // await fetchSummary(response.data);
-            await fetchSummary(url);
+            const { data } = await axios(`/api/fetchData?url=${url}`);
+            const htmlContents = JSON.stringify(data, null, 2);
+            console.log('htmlContents:', htmlContents);
+            await fetchSummary(htmlContents);
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -29,12 +28,16 @@ export default function Home() {
         try {
             setLoading(true);
             const chatCompletion = await openai.chat.completions.create({
-                messages: [{ role: 'user', content: url }],
+                messages: [
+                    { role: 'system', content: '日本語で要約してください。' },
+                    { role: 'user', content: url },
+                ],
                 model: 'gpt-3.5-turbo-16k',
             });
             setSummary(chatCompletion.choices[0]?.message.content || '');
             setLoading(false);
         } catch (error) {
+            setLoading(false);
             alert('Error fetching summary');
             console.error('Error fetching summary:', error);
         }
