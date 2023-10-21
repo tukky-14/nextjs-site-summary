@@ -3,6 +3,10 @@ import Head from 'next/head';
 import { useState } from 'react';
 import OpenAI from 'openai';
 
+const MAX_TOKENS = 16385;
+const APPROX_CHARS_PER_TOKEN = 4; // この数値は言語やテキストの内容によって異なる場合がある
+const MAX_CHARS = MAX_TOKENS / APPROX_CHARS_PER_TOKEN;
+
 export default function Home() {
     const [url, setUrl] = useState('');
     const [summary, setSummary] = useState('');
@@ -15,10 +19,21 @@ export default function Home() {
 
     const fetchData = async () => {
         try {
+            setSummary('');
             const { data } = await axios(`/api/fetchData?url=${url}`);
-            const htmlContents = JSON.stringify(data, null, 2);
-            console.log('htmlContents:', htmlContents);
-            await fetchSummary(htmlContents);
+
+            // HTMLを解析してbodyタグの中身を取得
+            const parser = new DOMParser();
+            const htmlDocument = parser.parseFromString(data, 'text/html');
+            let bodyContents = htmlDocument.body.textContent?.trim();
+
+            // トークンの上限を超える場合、テキストを切り詰める
+            if (bodyContents?.length || 0 > MAX_CHARS) {
+                bodyContents = bodyContents?.substring(0, MAX_CHARS);
+            }
+
+            console.log('htmlContents:', bodyContents);
+            await fetchSummary(bodyContents);
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -29,7 +44,10 @@ export default function Home() {
             setLoading(true);
             const chatCompletion = await openai.chat.completions.create({
                 messages: [
-                    { role: 'system', content: '日本語で要約してください。' },
+                    {
+                        role: 'system',
+                        content: '日本語で、難しい用語は分かりやすく噛み砕きつつ要約してください。',
+                    },
                     { role: 'user', content: url },
                 ],
                 model: 'gpt-3.5-turbo-16k',
