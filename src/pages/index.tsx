@@ -2,6 +2,7 @@ import axios from 'axios';
 import Head from 'next/head';
 import { useState } from 'react';
 import OpenAI from 'openai';
+import cheerio from 'cheerio';
 
 const MAX_TOKENS = 16385;
 const APPROX_CHARS_PER_TOKEN = 4; // この数値は言語やテキストの内容によって異なる場合がある
@@ -23,24 +24,10 @@ export default function Home() {
             const { data } = await axios(`/api/fetchData?url=${url}`);
 
             // HTMLを解析してbodyタグの中身を取得
-            const parser = new DOMParser();
-            const htmlDocument = parser.parseFromString(data, 'text/html');
-            console.log('htmlDocument:', htmlDocument);
+            const $ = cheerio.load(data);
+            const htmlDocument = $('div').text();
 
-            // すべての<script>タグを削除
-            const scriptTags = htmlDocument.querySelectorAll('script');
-            scriptTags.forEach((script) => {
-                script.parentNode?.removeChild(script);
-            });
-
-            // すべての<sytle>タグを削除
-            const sytleTags = htmlDocument.querySelectorAll('sytle');
-            sytleTags.forEach((style) => {
-                style.parentNode?.removeChild(style);
-            });
-
-            // タグを除去したテキスト情報を取得
-            let bodyContents = htmlDocument.body.textContent?.trim();
+            let bodyContents = htmlDocument.trim();
             console.log('bodyContents:', bodyContents);
 
             // トークンの上限を超える場合、テキストを切り詰める
@@ -61,7 +48,8 @@ export default function Home() {
                 messages: [
                     {
                         role: 'system',
-                        content: '日本語で、難しい用語は分かりやすく噛み砕きつつ要約してください。',
+                        content:
+                            'プロのライターです。日本語で小学生でも理解できる文章で要約して、見やすく改行します。要約の最初の文章は「このページは〜です」のように始めます。',
                     },
                     { role: 'user', content: url },
                 ],
