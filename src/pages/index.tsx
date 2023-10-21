@@ -1,36 +1,41 @@
 import axios from 'axios';
 import Head from 'next/head';
 import { useState } from 'react';
+import OpenAI from 'openai';
 
 export default function Home() {
     const [url, setUrl] = useState('');
     const [summary, setSummary] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const openai = new OpenAI({
+        apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
+        dangerouslyAllowBrowser: true,
+    });
 
     const fetchData = async () => {
         try {
-            const response = await axios.get(url);
-            await fetchSummary(response.data);
+            // const response = await axios.get(url);
+            // const response = await axios.get(`http://localhost:3001/proxy?url=${url}`);
+            // console.log('response:', response);
+            // await fetchSummary(response.data);
+            await fetchSummary(url);
         } catch (error) {
             console.error('Error fetching data:', error);
         }
     };
 
-    const fetchSummary = async (text: any) => {
+    const fetchSummary = async (url: any) => {
         try {
-            const response = await axios.post(
-                'https://api.openai.com/v1/engines/davinci/completions',
-                {
-                    prompt: text,
-                    // ... other API parameters ...
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-                    },
-                }
-            );
-            setSummary(response.data.choices[0].text.trim());
+            setLoading(true);
+            const chatCompletion = await openai.chat.completions.create({
+                messages: [{ role: 'user', content: url }],
+                model: 'gpt-3.5-turbo-16k',
+            });
+            setSummary(chatCompletion.choices[0]?.message.content || '');
+            setLoading(false);
         } catch (error) {
+            alert('Error fetching summary');
             console.error('Error fetching summary:', error);
         }
     };
@@ -64,17 +69,18 @@ export default function Home() {
                     </div>
                     <button
                         className="w-40 py-2.5 px-5 mr-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
-                        disabled={!url}
+                        disabled={!url || loading}
                         onClick={fetchData}
                     >
-                        Fetch Data
+                        {loading ? 'Loading...' : 'Submit'}
                     </button>
                 </div>
                 <div className="dark:text-white">
                     <h2 className="mb-2">Summary</h2>
-                    <div className="h-96 rounded bg-gray-50 dark:bg-gray-700 overflow-scroll">
-                        {summary}
-                    </div>
+                    <div
+                        className="p-2 h-96 rounded bg-gray-50 dark:bg-gray-700 overflow-scroll"
+                        dangerouslySetInnerHTML={{ __html: summary.replaceAll('\n', '<br>') }}
+                    />
                 </div>
             </main>
         </>
