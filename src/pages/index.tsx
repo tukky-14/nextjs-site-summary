@@ -30,7 +30,7 @@ export default function Home() {
 
             // HTMLを解析してbodyタグの中身を取得
             const $ = cheerio.load(data);
-            const htmlDocument = $('div').text();
+            const htmlDocument = $('div').text().replaceAll('\n', '');
 
             let bodyContents = htmlDocument.trim();
             console.log('bodyContents:', bodyContents);
@@ -46,8 +46,12 @@ export default function Home() {
         }
     };
 
-    const fetchSummary = async (url: any) => {
+    const fetchSummary = async (contents: string) => {
         try {
+            if (contents.length === 0) {
+                setSummary('文章の取得に失敗しました。');
+                return;
+            }
             setLoading(true);
             const chatCompletion = await openai.chat.completions.create({
                 messages: [
@@ -56,7 +60,7 @@ export default function Home() {
                         content:
                             'プロのライターです。日本語で小学生でも理解できる文章で要約して、見やすく改行します。要約の最初の文章は「このページは〜です」のように始めます。',
                     },
-                    { role: 'user', content: url },
+                    { role: 'user', content: contents },
                 ],
                 model: 'gpt-3.5-turbo-16k',
             });
