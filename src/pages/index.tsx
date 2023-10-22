@@ -59,7 +59,7 @@ export default function Home() {
                     {
                         role: 'system',
                         content:
-                            'プロのライターです。日本語で小学生でも理解できる文章で要約して、見やすく改行します。要約の最初の文章は「このページは〜です」のように始めます。',
+                            'あなたはプロのライターです。日本語に訳して要約して、小学生でも理解できる文章にして見やすく改行してください。200単語以内にしてください。要約の最初の文章は「このページは〜です」のように始めます。',
                     },
                     { role: 'user', content: contents },
                 ],
@@ -99,6 +99,7 @@ export default function Home() {
                             onClick={(e: React.MouseEvent<HTMLInputElement>) =>
                                 e.currentTarget.select()
                             }
+                            onKeyDown={fetchData}
                             placeholder="Enter URL"
                             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                             required
