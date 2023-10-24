@@ -7,6 +7,7 @@ import cheerio from 'cheerio';
 const MAX_TOKENS = 16385;
 const APPROX_CHARS_PER_TOKEN = 4; // この数値は言語やテキストの内容によって異なる場合がある
 const MAX_CHARS = MAX_TOKENS / APPROX_CHARS_PER_TOKEN;
+const URL_REGEX = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
 
 export default function Home() {
     const [url, setUrl] = useState('');
@@ -25,6 +26,11 @@ export default function Home() {
 
     const fetchData = async () => {
         try {
+            if (!URL_REGEX.test(url)) {
+                alert('URLの形式に誤りがあります。');
+                return;
+            }
+
             setSummary('');
             const { data } = await axios(`/api/fetchData?url=${url}`);
 
@@ -105,7 +111,7 @@ export default function Home() {
                                     fetchData();
                                 }
                             }}
-                            placeholder="Enter URL"
+                            placeholder="https://example.com"
                             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                             required
                         />
