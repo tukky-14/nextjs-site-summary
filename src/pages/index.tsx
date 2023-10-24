@@ -63,6 +63,7 @@ export default function Home() {
                     },
                     { role: 'user', content: contents },
                 ],
+                temperature: 0.5, // 生成テキストの多様性
                 model: 'gpt-3.5-turbo-16k',
             });
             setSummary(chatCompletion.choices[0]?.message.content || '');
