@@ -50,6 +50,7 @@ export default function Home() {
             await fetchSummary(bodyContents);
             setLoading(false);
         } catch (error) {
+            setLoading(false);
             setSummary('文章の取得に失敗しました。');
             console.error('Error fetching data:', error);
         }
