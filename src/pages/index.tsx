@@ -26,6 +26,7 @@ export default function Home() {
 
     const fetchData = async () => {
         try {
+            setLoading(true);
             if (!URL_REGEX.test(url)) {
                 alert('URLの形式に誤りがあります。');
                 return;
@@ -47,6 +48,7 @@ export default function Home() {
             }
 
             await fetchSummary(bodyContents);
+            setLoading(false);
         } catch (error) {
             setSummary('文章の取得に失敗しました。');
             console.error('Error fetching data:', error);
@@ -59,7 +61,6 @@ export default function Home() {
                 setSummary('文章の取得に失敗しました。');
                 return;
             }
-            setLoading(true);
             const chatCompletion = await openai.chat.completions.create({
                 messages: [
                     {
@@ -73,7 +74,6 @@ export default function Home() {
                 model: 'gpt-3.5-turbo-16k',
             });
             setSummary(chatCompletion.choices[0]?.message.content || '');
-            setLoading(false);
         } catch (error) {
             setLoading(false);
             alert('Error fetching summary');
