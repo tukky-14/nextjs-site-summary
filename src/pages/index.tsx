@@ -88,6 +88,7 @@ export default function Home() {
                 <meta name="description" content="Site Summary" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <link rel="icon" href="/favicon.ico" />
+                <link rel="apple-touch-icon" sizes="192x192" href="/site-summary.png" />
             </Head>
             <main className="p-2 bg-gray-200 dark:bg-gray-600 h-screen">
                 <div className="flex flex-col gap-3 mb-4">
