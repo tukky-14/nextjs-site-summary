@@ -89,7 +89,17 @@ export default function Home() {
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <link rel="icon" href="/favicon.ico" />
                 <link rel="apple-touch-icon" sizes="192x192" href="/site-summary.png" />
+                <meta property="og:title" content="Site Summary" />
+                <meta property="og:description" content="Site Summary" />
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content="https://next-site-summary.vercel.app/" />
+                <meta
+                    property="og:image"
+                    content="https://next-site-summary.vercel.app/site-summary.png"
+                />
+                <meta property="og:site_name" content="Site Summary" />
             </Head>
+
             <main className="p-2 bg-gray-200 dark:bg-gray-600 h-screen">
                 <div className="flex flex-col gap-3 mb-4">
                     <div>
